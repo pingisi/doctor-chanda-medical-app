@@ -1322,13 +1322,13 @@
         </div>
         
         <script>
-            // Show manual override after 5 seconds
+            // Show manual override after 8 seconds
             setTimeout(() => {
                 const override = document.getElementById('manualOverride');
                 if (override && document.getElementById('loading').style.display !== 'none') {
                     override.style.display = 'block';
                 }
-            }, 5000);
+            }, 8000);
             
             // Force load function
             window.forceLoadApp = function() {
@@ -4417,37 +4417,7 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
             
             console.log('Window loaded, starting initialization...');
             
-            // Check if required libraries are loaded
-            const missingLibraries = [];
-            if (typeof lucide === 'undefined') missingLibraries.push('Lucide Icons');
-            if (typeof CryptoJS === 'undefined') missingLibraries.push('CryptoJS');
-            if (typeof jsPDF === 'undefined') missingLibraries.push('jsPDF');
-            if (typeof html2canvas === 'undefined') missingLibraries.push('html2canvas');
-            
-            if (missingLibraries.length > 0) {
-                console.warn('Missing libraries:', missingLibraries);
-                const loadingSpinner = document.getElementById('loading');
-                if (loadingSpinner) {
-                    loadingSpinner.innerHTML = `
-                        <div class="text-center p-4">
-                            <div class="text-yellow-600 mb-4">
-                                <div class="w-8 h-8 mx-auto mb-2 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
-                                Loading External Resources...
-                            </div>
-                            <p class="text-sm text-gray-600 mb-4">Please wait while we load required libraries...</p>
-                            <p class="text-xs text-gray-500">If this takes too long, please check your internet connection</p>
-                        </div>
-                    `;
-                }
-                
-                // Wait a bit longer for libraries to load
-                setTimeout(() => {
-                    console.log('Retrying initialization after library loading delay...');
-                    initializeApp();
-                }, 3000);
-                return;
-            }
-            
+            // Skip library checks for GitHub Pages compatibility
             // Proceed with normal initialization
             initializeApp();
         };
@@ -4457,14 +4427,14 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
             
             // Ensure the spinner is hidden even if initialization fails
             setTimeout(() => {
-                console.log('Force hiding loading spinner after 5 seconds...');
+                console.log('Force hiding loading spinner after 10 seconds...');
                 if (loadingSpinner && loadingSpinner.style.display !== 'none') {
                     loadingSpinner.style.display = 'none';
                     console.log('Loading spinner hidden by timeout');
                     // Show a warning that initialization was interrupted
                     showNotification('App loaded with limited features. Some initialization steps were skipped.', 'warning');
                 }
-            }, 5000); // Reduced timeout to 5 seconds
+            }, 10000); // Increased timeout to 10 seconds
             
             try {
                 console.log('Creating icons...');
@@ -4482,7 +4452,7 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                 console.log('Starting initialize function...');
                 await Promise.race([
                     initialize(),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Initialize timeout')), 3000))
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Initialize timeout')), 10000))
                 ]);
                 console.log('Core initialization completed successfully');
 
@@ -4522,26 +4492,17 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                 console.log('All initialization steps completed successfully!');
             } catch (error) {
                 console.error('Critical initialization error:', error);
-                // Handle initialization error
+                // Handle initialization error - just log and hide spinner
+                console.warn('App loaded with errors, but continuing...');
                 if (loadingSpinner) {
-                    loadingSpinner.innerHTML = `
-                        <div class="text-center p-4">
-                            <div class="text-red-500 mb-4">
-                                <div class="w-8 h-8 mx-auto mb-2 text-red-500">⚠</div>
-                                App Loading Error
-                            </div>
-                            <p class="text-sm text-gray-600 mb-4">Error: ${error.message || 'Unknown error occurred'}</p>
-                            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
-                                Reload App
-                            </button>
-                            <p class="text-xs text-gray-500 mt-2">Check console for more details</p>
-                        </div>
-                    `;
+                    loadingSpinner.style.display = 'none';
                 }
-                // Still hide the spinner after showing error
-                setTimeout(() => {
-                    if (loadingSpinner) loadingSpinner.style.display = 'none';
-                }, 2000);
+                // Try to show the main view anyway
+                try {
+                    showView('patientListView');
+                } catch (viewError) {
+                    console.error('Failed to show main view:', viewError);
+                }
             }
         }
 
