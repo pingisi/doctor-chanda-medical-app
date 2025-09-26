@@ -469,6 +469,143 @@
             width: 100% !important;
         }
         
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 30;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 4px;
+            min-height: 60px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .nav-item.active {
+            color: #2563eb;
+        }
+        
+        .nav-item.active .nav-icon {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        /* Appointment and Reminder specific styles */
+        .appointment-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .appointment-time {
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .appointment-patient {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .appointment-type {
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .reminder-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #f59e0b;
+        }
+        
+        .reminder-time {
+            font-weight: 600;
+            color: #92400e;
+        }
+        
+        .reminder-message {
+            color: #78350f;
+            margin-top: 4px;
+        }
+        
+        /* Calendar styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 16px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day.today {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .calendar-day.has-appointments {
+            background: #dbeafe;
+            color: #2563eb;
+            position: relative;
+        }
+        
+        .calendar-day.has-appointments::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 4px;
+            height: 4px;
+            background: #2563eb;
+            border-radius: 50%;
+        }
+        
         /* Enhanced Mobile Optimization */
         @media (max-width: 640px) {
             body {
@@ -479,6 +616,7 @@
             #app {
                 padding: 0.75rem !important;
                 max-width: 100% !important;
+                padding-bottom: 80px !important; /* Space for bottom nav */
             }
             
             /* Fix for signature status on mobile */
@@ -1309,8 +1447,8 @@
                         <i data-lucide="calendar-check" class="w-5 h-5 text-green-600"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-xs">Today</p>
-                        <p class="text-xl font-bold text-gray-800" id="todayVisitsCount">0</p>
+                        <p class="text-gray-500 text-xs">Today's Appts</p>
+                        <p class="text-xl font-bold text-gray-800" id="todayAppointmentsCount">0</p>
                     </div>
                 </div>
             </div>
@@ -1359,6 +1497,34 @@
                 </button>
             </div>
         </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-view="patientListView">
+                <div class="nav-icon">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+                <span class="nav-label">Patients</span>
+            </div>
+            <div class="nav-item" data-view="appointmentsView">
+                <div class="nav-icon">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                </div>
+                <span class="nav-label">Appointments</span>
+            </div>
+            <div class="nav-item" data-view="remindersView">
+                <div class="nav-icon">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </div>
+                <span class="nav-label">Reminders</span>
+            </div>
+            <div class="nav-item" data-view="settingsView">
+                <div class="nav-icon">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </div>
+                <span class="nav-label">Settings</span>
+            </div>
+        </nav>
 
         <!-- Add/Edit Patient View -->
         <div id="patientFormView" class="view">
@@ -1963,6 +2129,223 @@
                     <i data-lucide="shield-check"></i>
                     <span class="text-sm sm:text-base">Verify Authenticity</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- Add/Edit Appointment View -->
+        <div id="appointmentFormView" class="view">
+            <button id="backToAppointments" class="flex items-center space-x-2 text-blue-500 mb-4">
+                <i data-lucide="arrow-left"></i>
+                <span>Back to Appointments</span>
+            </button>
+
+            <h2 class="text-2xl font-bold mb-6" id="appointmentFormTitle">Schedule Appointment</h2>
+
+            <form id="appointmentForm" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
+                <input type="hidden" id="appointmentId">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Patient Selection -->
+                    <div>
+                        <label for="appointmentPatient" class="block text-sm font-medium text-gray-700 mb-2">Patient</label>
+                        <select id="appointmentPatient" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            <option value="">Select Patient</option>
+                        </select>
+                    </div>
+
+                    <!-- Appointment Type -->
+                    <div>
+                        <label for="appointmentType" class="block text-sm font-medium text-gray-700 mb-2">Appointment Type</label>
+                        <select id="appointmentType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            <option value="consultation">Consultation</option>
+                            <option value="follow-up">Follow-up</option>
+                            <option value="emergency">Emergency</option>
+                            <option value="check-up">Check-up</option>
+                            <option value="procedure">Procedure</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date -->
+                    <div>
+                        <label for="appointmentDate" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                        <input type="date" id="appointmentDate" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+
+                    <!-- Time -->
+                    <div>
+                        <label for="appointmentTime" class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                        <input type="time" id="appointmentTime" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label for="appointmentNotes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea id="appointmentNotes" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Additional notes..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-4 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                        Save Appointment
+                    </button>
+                    <button type="button" id="cancelAppointmentForm" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Add/Edit Reminder View -->
+        <div id="reminderFormView" class="view">
+            <button id="backToReminders" class="flex items-center space-x-2 text-blue-500 mb-4">
+                <i data-lucide="arrow-left"></i>
+                <span>Back to Reminders</span>
+            </button>
+
+            <h2 class="text-2xl font-bold mb-6" id="reminderFormTitle">Create Reminder</h2>
+
+            <form id="reminderForm" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
+                <input type="hidden" id="reminderId">
+
+                <!-- Reminder Message -->
+                <div>
+                    <label for="reminderMessage" class="block text-sm font-medium text-gray-700 mb-2">Reminder Message</label>
+                    <input type="text" id="reminderMessage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Enter reminder message..." required>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date -->
+                    <div>
+                        <label for="reminderDate" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                        <input type="date" id="reminderDate" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" required>
+                    </div>
+
+                    <!-- Time -->
+                    <div>
+                        <label for="reminderTime" class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                        <input type="time" id="reminderTime" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" required>
+                    </div>
+                </div>
+
+                <!-- Priority -->
+                <div>
+                    <label for="reminderPriority" class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                    <select id="reminderPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <!-- Recurring -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Recurring</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="reminderRecurring" class="mr-2">
+                            <span class="text-sm">Make this a recurring reminder</span>
+                        </label>
+                        <select id="reminderFrequency" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" disabled>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-4 pt-4">
+                    <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                        Save Reminder
+                    </button>
+                    <button type="button" id="cancelReminderForm" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Appointments View -->
+        <div id="appointmentsView" class="view">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Appointments</h2>
+                <button id="addAppointmentBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Appointment</span>
+                </button>
+            </div>
+
+            <!-- Calendar Header -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prevMonth" class="p-2 hover:bg-gray-100 rounded-lg">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <h3 id="currentMonth" class="text-lg font-semibold text-gray-800">September 2025</h3>
+                    <button id="nextMonth" class="p-2 hover:bg-gray-100 rounded-lg">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Sun</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Mon</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Tue</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Wed</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Thu</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Fri</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Sat</div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <!-- Calendar days will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Today's Appointments -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Today's Appointments</h3>
+                <div id="todayAppointments" class="space-y-3">
+                    <!-- Appointments will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Upcoming Appointments -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Upcoming Appointments</h3>
+                <div id="upcomingAppointments" class="space-y-3">
+                    <!-- Appointments will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminders View -->
+        <div id="remindersView" class="view">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Reminders</h2>
+                <button id="addReminderBtn" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Reminder</span>
+                </button>
+            </div>
+
+            <!-- Active Reminders -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Active Reminders</h3>
+                <div id="activeReminders" class="space-y-3">
+                    <!-- Reminders will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Completed Reminders -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Completed Reminders</h3>
+                <div id="completedReminders" class="space-y-3">
+                    <!-- Completed reminders will be populated by JavaScript -->
+                </div>
             </div>
         </div>
 
@@ -3082,7 +3465,9 @@
             DOCTOR_PROFILE: 'clinic_doctor_profile',
             PATIENTS: 'clinic_patients',
             CONSULTATIONS: 'clinic_consultations_',
-            CERTIFICATES: 'clinic_certificates_'
+            CERTIFICATES: 'clinic_certificates_',
+            APPOINTMENTS: 'clinic_appointments',
+            REMINDERS: 'clinic_reminders'
         };
 
         // --- MEDICAL AUTHENTICATION UTILITIES ---
@@ -3137,6 +3522,8 @@
         let doctorProfile = {};
         let patients = [];
         let consultations = [];
+        let appointments = [];
+        let reminders = [];
         
         // Default doctor profile for Indian doctors
         const defaultDoctorProfile = {
@@ -3755,6 +4142,17 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                 if (todayVisitsEl) {
                     todayVisitsEl.textContent = todayVisits;
                 }
+
+                // Update today's appointments count
+                const todayAppointments = appointments.filter(apt => {
+                    const aptDate = new Date(apt.date);
+                    return aptDate.toDateString() === today && apt.status === 'scheduled';
+                }).length;
+
+                const todayAppointmentsEl = document.getElementById('todayAppointmentsCount');
+                if (todayAppointmentsEl) {
+                    todayAppointmentsEl.textContent = todayAppointments;
+                }
                 
                 // Optional elements that might not be present in mobile-optimized UI
                 const weekVisitsEl = document.getElementById('weekVisitsCount');
@@ -4009,6 +4407,20 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                 } catch (patientsError) {
                     console.error('Patients loading error:', patientsError);
                 }
+
+                console.log('Loading appointments...');
+                try {
+                    loadAppointments();
+                } catch (appointmentsError) {
+                    console.error('Appointments loading error:', appointmentsError);
+                }
+
+                console.log('Loading reminders...');
+                try {
+                    loadReminders();
+                } catch (remindersError) {
+                    console.error('Reminders loading error:', remindersError);
+                }
                 
                 console.log('Attaching event listeners...');
                 try {
@@ -4028,6 +4440,9 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                     
                     // Update stats dashboard
                     updateQuickStats();
+
+                    // Initialize bottom navigation
+                    initializeBottomNavigation();
                 } catch (uiError) {
                     console.error('UI enhancement error:', uiError);
                 }
@@ -4388,6 +4803,32 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
             
             // Add them to the global array
             consultations = consultations.concat(consultationsWithPatientId);
+        }
+
+        function loadAppointments() {
+            const saved = localStorage.getItem(STORAGE_KEYS.APPOINTMENTS);
+            if (saved) {
+                appointments = JSON.parse(saved);
+            } else {
+                appointments = [];
+            }
+        }
+
+        function saveAppointments() {
+            localStorage.setItem(STORAGE_KEYS.APPOINTMENTS, JSON.stringify(appointments));
+        }
+
+        function loadReminders() {
+            const saved = localStorage.getItem(STORAGE_KEYS.REMINDERS);
+            if (saved) {
+                reminders = JSON.parse(saved);
+            } else {
+                reminders = [];
+            }
+        }
+
+        function saveReminders() {
+            localStorage.setItem(STORAGE_KEYS.REMINDERS, JSON.stringify(reminders));
         }
         
         function generateId() {
@@ -5982,6 +6423,103 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                     consultationForm.onsubmit = saveConsultation;
                 }
 
+                // Appointments and Reminders
+                const addAppointmentBtn = document.getElementById('addAppointmentBtn');
+                if (addAppointmentBtn) {
+                    addAppointmentBtn.onclick = () => {
+                        document.getElementById('appointmentForm').reset();
+                        document.getElementById('appointmentId').value = '';
+                        document.getElementById('appointmentFormTitle').textContent = 'Schedule Appointment';
+                        populateAppointmentPatientSelect();
+                        showView('appointmentFormView');
+                    };
+                }
+
+                const appointmentForm = document.getElementById('appointmentForm');
+                if (appointmentForm) {
+                    appointmentForm.onsubmit = saveAppointment;
+                }
+
+                const cancelAppointmentForm = document.getElementById('cancelAppointmentForm');
+                if (cancelAppointmentForm) {
+                    cancelAppointmentForm.onclick = () => showView('appointmentsView');
+                }
+
+                const backToAppointments = document.getElementById('backToAppointments');
+                if (backToAppointments) {
+                    backToAppointments.onclick = () => showView('appointmentsView');
+                }
+
+                const addReminderBtn = document.getElementById('addReminderBtn');
+                if (addReminderBtn) {
+                    addReminderBtn.onclick = () => {
+                        document.getElementById('reminderForm').reset();
+                        document.getElementById('reminderId').value = '';
+                        document.getElementById('reminderFormTitle').textContent = 'Create Reminder';
+                        showView('reminderFormView');
+                    };
+                }
+
+                const reminderForm = document.getElementById('reminderForm');
+                if (reminderForm) {
+                    reminderForm.onsubmit = saveReminder;
+                }
+
+                const cancelReminderForm = document.getElementById('cancelReminderForm');
+                if (cancelReminderForm) {
+                    cancelReminderForm.onclick = () => showView('remindersView');
+                }
+
+                const backToReminders = document.getElementById('backToReminders');
+                if (backToReminders) {
+                    backToReminders.onclick = () => showView('remindersView');
+                }
+
+                // Bottom Navigation
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.onclick = () => {
+                        const viewId = item.getAttribute('data-view');
+                        if (viewId) {
+                            // Update active nav item
+                            navItems.forEach(nav => nav.classList.remove('active'));
+                            item.classList.add('active');
+                            
+                            // Show the corresponding view
+                            showView(viewId);
+                            
+                            // Load data for the view
+                            if (viewId === 'appointmentsView') {
+                                renderAppointmentsView();
+                            } else if (viewId === 'remindersView') {
+                                renderRemindersView();
+                            }
+                        }
+                    };
+                });
+
+                // Calendar Navigation
+                const prevMonth = document.getElementById('prevMonth');
+                if (prevMonth) {
+                    prevMonth.onclick = () => navigateCalendar(-1);
+                }
+
+                const nextMonth = document.getElementById('nextMonth');
+                if (nextMonth) {
+                    nextMonth.onclick = () => navigateCalendar(1);
+                }
+
+                // Recurring Reminder Toggle
+                const reminderRecurring = document.getElementById('reminderRecurring');
+                if (reminderRecurring) {
+                    reminderRecurring.onchange = () => {
+                        const frequencySelect = document.getElementById('reminderFrequency');
+                        if (frequencySelect) {
+                            frequencySelect.disabled = !reminderRecurring.checked;
+                        }
+                    };
+                }
+
                 // Search
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
@@ -6138,6 +6676,22 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                     setTimeout(() => initializeDigitalSignature(), 100);
                 });
             }
+        }
+
+        function initializeBottomNavigation() {
+            // Set initial active state
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                const viewId = item.getAttribute('data-view');
+                if (viewId === 'patientListView') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Re-create icons for bottom navigation
+            lucide.createIcons();
         }
         
         function setupPatientFormEnhancements() {
@@ -11361,6 +11915,513 @@ Generate 6-8 specific, actionable advice points. Return as JSON array only:
                 showNotification('Could not update consultation. Please try again.', 'error');
             }
         }
+
+        // --- APPOINTMENTS AND REMINDERS FUNCTIONS ---
+
+        function populateAppointmentPatientSelect() {
+            const select = document.getElementById('appointmentPatient');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Select Patient</option>';
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.name} (${patient.patientId})`;
+                select.appendChild(option);
+            });
+        }
+
+        function saveAppointment(e) {
+            e.preventDefault();
+
+            const appointmentId = document.getElementById('appointmentId').value;
+            const appointment = {
+                id: appointmentId || generateId(),
+                patientId: document.getElementById('appointmentPatient').value,
+                type: document.getElementById('appointmentType').value,
+                date: document.getElementById('appointmentDate').value,
+                time: document.getElementById('appointmentTime').value,
+                notes: document.getElementById('appointmentNotes').value,
+                status: 'scheduled',
+                createdAt: new Date().toISOString()
+            };
+
+            if (appointmentId) {
+                // Update existing appointment
+                const index = appointments.findIndex(a => a.id === appointmentId);
+                if (index !== -1) {
+                    appointments[index] = appointment;
+                }
+            } else {
+                // Add new appointment
+                appointments.push(appointment);
+            }
+
+            saveAppointments();
+            showNotification('Appointment saved successfully!', 'success');
+            showView('appointmentsView');
+            renderAppointmentsView();
+        }
+
+        function saveReminder(e) {
+            e.preventDefault();
+
+            const reminderId = document.getElementById('reminderId').value;
+            const reminder = {
+                id: reminderId || generateId(),
+                message: document.getElementById('reminderMessage').value,
+                date: document.getElementById('reminderDate').value,
+                time: document.getElementById('reminderTime').value,
+                priority: document.getElementById('reminderPriority').value,
+                recurring: document.getElementById('reminderRecurring').checked,
+                frequency: document.getElementById('reminderRecurring').checked ?
+                    document.getElementById('reminderFrequency').value : null,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            if (reminderId) {
+                // Update existing reminder
+                const index = reminders.findIndex(r => r.id === reminderId);
+                if (index !== -1) {
+                    reminders[index] = reminder;
+                }
+            } else {
+                // Add new reminder
+                reminders.push(reminder);
+            }
+
+            saveReminders();
+            showNotification('Reminder saved successfully!', 'success');
+            showView('remindersView');
+            renderRemindersView();
+        }
+
+        function renderAppointmentsView() {
+            renderCalendar();
+            renderTodayAppointments();
+            renderUpcomingAppointments();
+        }
+
+        function renderCalendar() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            // Update month display
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            if (!calendarGrid) return;
+
+            calendarGrid.innerHTML = '';
+
+            // Get first day of month and last day
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            // Create calendar days
+            for (let i = 0; i < 42; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+
+                const dayNumber = currentDate.getDate();
+                const isCurrentMonth = currentDate.getMonth() === currentMonth;
+                const isToday = currentDate.toDateString() === now.toDateString();
+
+                if (isCurrentMonth) {
+                    dayDiv.textContent = dayNumber;
+
+                    if (isToday) {
+                        dayDiv.classList.add('today');
+                    }
+
+                    // Check if there are appointments on this day
+                    const dayAppointments = appointments.filter(apt => {
+                        const aptDate = new Date(apt.date);
+                        return aptDate.toDateString() === currentDate.toDateString();
+                    });
+
+                    if (dayAppointments.length > 0) {
+                        dayDiv.classList.add('has-appointments');
+                    }
+
+                    dayDiv.onclick = () => showDayAppointments(currentDate);
+                } else {
+                    dayDiv.textContent = '';
+                    dayDiv.style.opacity = '0.3';
+                }
+
+                calendarGrid.appendChild(dayDiv);
+            }
+        }
+
+        function navigateCalendar(direction) {
+            // This is a simplified version - in a real app you'd track current month
+            // For now, just re-render the current month
+            renderCalendar();
+        }
+
+        function showDayAppointments(date) {
+            const dayAppointments = appointments.filter(apt => {
+                const aptDate = new Date(apt.date);
+                return aptDate.toDateString() === date.toDateString();
+            });
+
+            if (dayAppointments.length === 0) {
+                showNotification('No appointments on this day', 'info');
+                return;
+            }
+
+            // Show appointments in a modal or alert
+            let message = `Appointments for ${date.toDateString()}:\n\n`;
+            dayAppointments.forEach(apt => {
+                const patient = patients.find(p => p.id === apt.patientId);
+                const patientName = patient ? patient.name : 'Unknown Patient';
+                message += `${apt.time} - ${patientName} (${apt.type})\n`;
+            });
+
+            alert(message);
+        }
+
+        function renderTodayAppointments() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const todayAppointments = appointments.filter(apt => {
+                const aptDate = new Date(apt.date);
+                aptDate.setHours(0, 0, 0, 0);
+                return aptDate.getTime() === today.getTime() && apt.status === 'scheduled';
+            });
+
+            const container = document.getElementById('todayAppointments');
+            if (!container) return;
+
+            if (todayAppointments.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No appointments today</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            todayAppointments.forEach(apt => {
+                const patient = patients.find(p => p.id === apt.patientId);
+                const patientName = patient ? patient.name : 'Unknown Patient';
+
+                const card = document.createElement('div');
+                card.className = 'appointment-card';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="appointment-time">${apt.time}</div>
+                            <div class="appointment-patient">${patientName}</div>
+                            <div class="appointment-type">${apt.type}</div>
+                            ${apt.notes ? `<div class="text-sm text-gray-600 mt-1">${apt.notes}</div>` : ''}
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="completeAppointment('${apt.id}')" class="text-green-600 hover:text-green-800">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="editAppointment('${apt.id}')" class="text-blue-600 hover:text-blue-800">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteAppointment('${apt.id}')" class="text-red-600 hover:text-red-800">
+                                <i data-lucide="trash" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Re-create icons
+            lucide.createIcons();
+        }
+
+        function renderUpcomingAppointments() {
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+
+            const upcomingAppointments = appointments
+                .filter(apt => {
+                    const aptDate = new Date(`${apt.date}T${apt.time}`);
+                    return aptDate > today && apt.status === 'scheduled';
+                })
+                .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`))
+                .slice(0, 10); // Show next 10
+
+            const container = document.getElementById('upcomingAppointments');
+            if (!container) return;
+
+            if (upcomingAppointments.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No upcoming appointments</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            upcomingAppointments.forEach(apt => {
+                const patient = patients.find(p => p.id === apt.patientId);
+                const patientName = patient ? patient.name : 'Unknown Patient';
+                const aptDate = new Date(`${apt.date}T${apt.time}`);
+                const dateStr = aptDate.toLocaleDateString();
+
+                const card = document.createElement('div');
+                card.className = 'appointment-card';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="appointment-time">${dateStr} at ${apt.time}</div>
+                            <div class="appointment-patient">${patientName}</div>
+                            <div class="appointment-type">${apt.type}</div>
+                            ${apt.notes ? `<div class="text-sm text-gray-600 mt-1">${apt.notes}</div>` : ''}
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editAppointment('${apt.id}')" class="text-blue-600 hover:text-blue-800">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteAppointment('${apt.id}')" class="text-red-600 hover:text-red-800">
+                                <i data-lucide="trash" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Re-create icons
+            lucide.createIcons();
+        }
+
+        function renderRemindersView() {
+            renderActiveReminders();
+            renderCompletedReminders();
+        }
+
+        function renderActiveReminders() {
+            const activeReminders = reminders.filter(r => !r.completed);
+
+            const container = document.getElementById('activeReminders');
+            if (!container) return;
+
+            if (activeReminders.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No active reminders</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            activeReminders.forEach(reminder => {
+                const reminderDate = new Date(`${reminder.date}T${reminder.time}`);
+                const isOverdue = reminderDate < new Date();
+
+                const card = document.createElement('div');
+                card.className = `reminder-card ${isOverdue ? 'border-red-300' : ''}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="reminder-time ${isOverdue ? 'text-red-700' : ''}">
+                                ${reminderDate.toLocaleString()}
+                                ${reminder.recurring ? ` (${reminder.frequency})` : ''}
+                            </div>
+                            <div class="reminder-message">${reminder.message}</div>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <span class="px-2 py-1 text-xs rounded ${getPriorityClass(reminder.priority)}">
+                                    ${reminder.priority}
+                                </span>
+                                ${isOverdue ? '<span class="text-red-600 text-xs">Overdue</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="completeReminder('${reminder.id}')" class="text-green-600 hover:text-green-800">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="editReminder('${reminder.id}')" class="text-blue-600 hover:text-blue-800">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteReminder('${reminder.id}')" class="text-red-600 hover:text-red-800">
+                                <i data-lucide="trash" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Re-create icons
+            lucide.createIcons();
+        }
+
+        function renderCompletedReminders() {
+            const completedReminders = reminders.filter(r => r.completed);
+
+            const container = document.getElementById('completedReminders');
+            if (!container) return;
+
+            if (completedReminders.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No completed reminders</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            completedReminders.slice(-10).forEach(reminder => { // Show last 10
+                const reminderDate = new Date(`${reminder.date}T${reminder.time}`);
+
+                const card = document.createElement('div');
+                card.className = 'reminder-card opacity-60';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="reminder-time line-through">
+                                ${reminderDate.toLocaleString()}
+                            </div>
+                            <div class="reminder-message line-through">${reminder.message}</div>
+                        </div>
+                        <button onclick="uncompleteReminder('${reminder.id}')" class="text-gray-600 hover:text-gray-800">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Re-create icons
+            lucide.createIcons();
+        }
+
+        function getPriorityClass(priority) {
+            switch (priority) {
+                case 'low': return 'bg-gray-100 text-gray-800';
+                case 'medium': return 'bg-yellow-100 text-yellow-800';
+                case 'high': return 'bg-orange-100 text-orange-800';
+                case 'urgent': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Global functions for button clicks
+        window.editAppointment = function(id) {
+            const appointment = appointments.find(a => a.id === id);
+            if (!appointment) return;
+
+            document.getElementById('appointmentId').value = appointment.id;
+            document.getElementById('appointmentPatient').value = appointment.patientId;
+            document.getElementById('appointmentType').value = appointment.type;
+            document.getElementById('appointmentDate').value = appointment.date;
+            document.getElementById('appointmentTime').value = appointment.time;
+            document.getElementById('appointmentNotes').value = appointment.notes || '';
+            document.getElementById('appointmentFormTitle').textContent = 'Edit Appointment';
+
+            populateAppointmentPatientSelect();
+            showView('appointmentFormView');
+        };
+
+        window.deleteAppointment = function(id) {
+            if (confirm('Are you sure you want to delete this appointment?')) {
+                appointments = appointments.filter(a => a.id !== id);
+                saveAppointments();
+                renderAppointmentsView();
+                showNotification('Appointment deleted', 'success');
+            }
+        };
+
+        window.completeAppointment = function(id) {
+            const appointment = appointments.find(a => a.id === id);
+            if (appointment) {
+                appointment.status = 'completed';
+                saveAppointments();
+                renderAppointmentsView();
+                showNotification('Appointment marked as completed', 'success');
+            }
+        };
+
+        window.editReminder = function(id) {
+            const reminder = reminders.find(r => r.id === id);
+            if (!reminder) return;
+
+            document.getElementById('reminderId').value = reminder.id;
+            document.getElementById('reminderMessage').value = reminder.message;
+            document.getElementById('reminderDate').value = reminder.date;
+            document.getElementById('reminderTime').value = reminder.time;
+            document.getElementById('reminderPriority').value = reminder.priority;
+            document.getElementById('reminderRecurring').checked = reminder.recurring || false;
+            if (reminder.frequency) {
+                document.getElementById('reminderFrequency').value = reminder.frequency;
+            }
+            document.getElementById('reminderFrequency').disabled = !reminder.recurring;
+            document.getElementById('reminderFormTitle').textContent = 'Edit Reminder';
+
+            showView('reminderFormView');
+        };
+
+        window.deleteReminder = function(id) {
+            if (confirm('Are you sure you want to delete this reminder?')) {
+                reminders = reminders.filter(r => r.id !== id);
+                saveReminders();
+                renderRemindersView();
+                showNotification('Reminder deleted', 'success');
+            }
+        };
+
+        window.completeReminder = function(id) {
+            const reminder = reminders.find(r => r.id === id);
+            if (reminder) {
+                reminder.completed = true;
+                saveReminders();
+                renderRemindersView();
+                showNotification('Reminder marked as completed', 'success');
+            }
+        };
+
+        window.uncompleteReminder = function(id) {
+            const reminder = reminders.find(r => r.id === id);
+            if (reminder) {
+                reminder.completed = false;
+                saveReminders();
+                renderRemindersView();
+                showNotification('Reminder marked as active', 'success');
+            }
+        };
+
+        // Reminder notification system
+        function checkReminders() {
+            const now = new Date();
+            const activeReminders = reminders.filter(r => !r.completed);
+
+            activeReminders.forEach(reminder => {
+                const reminderDate = new Date(`${reminder.date}T${reminder.time}`);
+                const timeDiff = reminderDate - now;
+                const minutesDiff = timeDiff / (1000 * 60);
+
+                // Show notification for reminders due within 15 minutes
+                if (minutesDiff > 0 && minutesDiff <= 15) {
+                    showNotification(`Reminder: ${reminder.message}`, 'info');
+                }
+
+                // Handle recurring reminders
+                if (reminder.recurring && reminderDate < now) {
+                    const nextDate = new Date(reminderDate);
+                    if (reminder.frequency === 'daily') {
+                        nextDate.setDate(nextDate.getDate() + 1);
+                    } else if (reminder.frequency === 'weekly') {
+                        nextDate.setDate(nextDate.getDate() + 7);
+                    } else if (reminder.frequency === 'monthly') {
+                        nextDate.setMonth(nextDate.getMonth() + 1);
+                    }
+
+                    reminder.date = nextDate.toISOString().split('T')[0];
+                    reminder.time = nextDate.toTimeString().split(' ')[0];
+                    saveReminders();
+                }
+            });
+        }
+
+        // Check reminders every minute
+        setInterval(checkReminders, 60000);
 
         function saveVital(patientId, vital) {
             const vitals = loadVitals(patientId);
