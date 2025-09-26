@@ -12,11 +12,36 @@
     <meta name="description" content="Doctor Chanda - Medical Records & E-Prescription App">
     <title>Smart Medical Records & E-Prescription</title>
     <link rel="manifest" href="./manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com" onerror="console.warn('TailwindCSS CDN failed to load')"></script>
+    <script src="https://unpkg.com/lucide@latest" onerror="console.warn('Lucide icons CDN failed to load')"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" onerror="console.warn('CryptoJS CDN failed to load')"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer onerror="console.warn('jsPDF CDN failed to load')"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer onerror="console.warn('html2canvas CDN failed to load')"></script>
+    
+    <!-- Fallback loading check script -->
+    <script>
+        // Check if external libraries loaded successfully
+        window.checkLibrariesLoaded = function() {
+            const results = {
+                tailwind: typeof tailwind !== 'undefined' || document.querySelector('script[src*="tailwindcss"]') !== null,
+                lucide: typeof lucide !== 'undefined',
+                cryptojs: typeof CryptoJS !== 'undefined',
+                jspdf: typeof jsPDF !== 'undefined',
+                html2canvas: typeof html2canvas !== 'undefined'
+            };
+            console.log('Library loading status:', results);
+            return results;
+        };
+        
+        // Add a timeout to check library loading
+        setTimeout(() => {
+            const status = window.checkLibrariesLoaded();
+            const failed = Object.keys(status).filter(key => !status[key]);
+            if (failed.length > 0) {
+                console.warn('Failed to load libraries:', failed);
+            }
+        }, 2000);
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -1285,8 +1310,45 @@
             <div class="text-center mt-4">
                 <h3 class="text-lg font-bold text-blue-800">MediRecords Pro</h3>
                 <p class="text-sm text-blue-600 animate-pulse">Loading your medical workspace...</p>
+                
+                <!-- Manual override button (appears after 10 seconds) -->
+                <div id="manualOverride" style="display: none;" class="mt-4">
+                    <button onclick="forceLoadApp()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors">
+                        Continue Anyway
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">Click if app is taking too long to load</p>
+                </div>
             </div>
         </div>
+        
+        <script>
+            // Show manual override after 5 seconds
+            setTimeout(() => {
+                const override = document.getElementById('manualOverride');
+                if (override && document.getElementById('loading').style.display !== 'none') {
+                    override.style.display = 'block';
+                }
+            }, 5000);
+            
+            // Force load function
+            window.forceLoadApp = function() {
+                console.log('Force loading app...');
+                const loadingSpinner = document.getElementById('loading');
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
+                }
+                
+                // Try to show the main view
+                const views = document.querySelectorAll('.view');
+                views.forEach(v => v.classList.remove('active'));
+                const patientListView = document.getElementById('patientListView');
+                if (patientListView) {
+                    patientListView.classList.add('active');
+                }
+                
+                console.log('App force-loaded successfully');
+            };
+        </script>
         
         <!-- Streamlined Header for Mobile -->
         <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-4 rounded-xl shadow-lg mb-4 relative overflow-hidden">
@@ -4355,61 +4417,133 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
             
             console.log('Window loaded, starting initialization...');
             
+            // Check if required libraries are loaded
+            const missingLibraries = [];
+            if (typeof lucide === 'undefined') missingLibraries.push('Lucide Icons');
+            if (typeof CryptoJS === 'undefined') missingLibraries.push('CryptoJS');
+            if (typeof jsPDF === 'undefined') missingLibraries.push('jsPDF');
+            if (typeof html2canvas === 'undefined') missingLibraries.push('html2canvas');
+            
+            if (missingLibraries.length > 0) {
+                console.warn('Missing libraries:', missingLibraries);
+                const loadingSpinner = document.getElementById('loading');
+                if (loadingSpinner) {
+                    loadingSpinner.innerHTML = `
+                        <div class="text-center p-4">
+                            <div class="text-yellow-600 mb-4">
+                                <div class="w-8 h-8 mx-auto mb-2 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+                                Loading External Resources...
+                            </div>
+                            <p class="text-sm text-gray-600 mb-4">Please wait while we load required libraries...</p>
+                            <p class="text-xs text-gray-500">If this takes too long, please check your internet connection</p>
+                        </div>
+                    `;
+                }
+                
+                // Wait a bit longer for libraries to load
+                setTimeout(() => {
+                    console.log('Retrying initialization after library loading delay...');
+                    initializeApp();
+                }, 3000);
+                return;
+            }
+            
+            // Proceed with normal initialization
+            initializeApp();
+        };
+        
+        async function initializeApp() {
+            const loadingSpinner = document.getElementById('loading');
+            
             // Ensure the spinner is hidden even if initialization fails
             setTimeout(() => {
                 console.log('Force hiding loading spinner after 5 seconds...');
-                const loadingSpinner = document.getElementById('loading');
                 if (loadingSpinner && loadingSpinner.style.display !== 'none') {
                     loadingSpinner.style.display = 'none';
                     console.log('Loading spinner hidden by timeout');
+                    // Show a warning that initialization was interrupted
+                    showNotification('App loaded with limited features. Some initialization steps were skipped.', 'warning');
                 }
-            }, 5000); // Force hide after 5 seconds
+            }, 5000); // Reduced timeout to 5 seconds
             
             try {
                 console.log('Creating icons...');
                 try {
-                    lucide.createIcons();
+                    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                        lucide.createIcons();
+                        console.log('Icons created successfully');
+                    } else {
+                        console.warn('Lucide icons not available, skipping icon creation');
+                    }
                 } catch (iconError) {
                     console.error('Icon creation error:', iconError);
                 }
                 
                 console.log('Starting initialize function...');
-                await initialize();
-                console.log('Initialization completed successfully');
+                await Promise.race([
+                    initialize(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Initialize timeout')), 3000))
+                ]);
+                console.log('Core initialization completed successfully');
 
                 console.log('Starting accessibility initialization...');
-                await initializeAccessibility();
-                console.log('Accessibility features initialized');
+                try {
+                    await Promise.race([
+                        initializeAccessibility(),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Accessibility timeout')), 1000))
+                    ]);
+                    console.log('Accessibility features initialized');
+                } catch (accessError) {
+                    console.error('Accessibility initialization error:', accessError);
+                }
 
                 console.log('Starting performance optimizations...');
-                optimizePerformance();
-                console.log('Performance optimizations initialized');
+                try {
+                    optimizePerformance();
+                    console.log('Performance optimizations initialized');
+                } catch (perfError) {
+                    console.error('Performance optimization error:', perfError);
+                }
 
                 console.log('Adding notification settings...');
-                addNotificationSettings();
-                console.log('Notification settings added');
+                try {
+                    addNotificationSettings();
+                    console.log('Notification settings added');
+                } catch (notifError) {
+                    console.error('Notification settings error:', notifError);
+                }
+
+                // Hide loading spinner after successful initialization
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
+                    console.log('Loading spinner hidden after successful initialization');
+                }
 
                 console.log('All initialization steps completed successfully!');
             } catch (error) {
-                console.error('Initialization error:', error);
+                console.error('Critical initialization error:', error);
                 // Handle initialization error
-                const loadingSpinner = document.getElementById('loading');
                 if (loadingSpinner) {
                     loadingSpinner.innerHTML = `
-                        <div class="text-center">
+                        <div class="text-center p-4">
                             <div class="text-red-500 mb-4">
-                                <i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i>
-                                Error loading app
+                                <div class="w-8 h-8 mx-auto mb-2 text-red-500">⚠</div>
+                                App Loading Error
                             </div>
-                            <p class="text-sm text-gray-600 mb-4">Error: ${error.message}</p>
-                            <button onclick="location.reload()" class="bg-blue-500 text-white px-4 py-2 rounded">
-                                Try Again
+                            <p class="text-sm text-gray-600 mb-4">Error: ${error.message || 'Unknown error occurred'}</p>
+                            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
+                                Reload App
                             </button>
+                            <p class="text-xs text-gray-500 mt-2">Check console for more details</p>
                         </div>
                     `;
                 }
+                // Still hide the spinner after showing error
+                setTimeout(() => {
+                    if (loadingSpinner) loadingSpinner.style.display = 'none';
+                }, 2000);
             }
-        };
+        }
 
         // --- VIEW MANAGEMENT ---
         function showView(viewId, patientId = null) {
