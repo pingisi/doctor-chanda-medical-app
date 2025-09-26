@@ -11,37 +11,10 @@
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="description" content="Doctor Chanda - Medical Records & E-Prescription App">
     <title>Smart Medical Records & E-Prescription</title>
-    <link rel="manifest" href="./manifest.json">
-    <script src="https://cdn.tailwindcss.com" onerror="console.warn('TailwindCSS CDN failed to load')"></script>
-    <script src="https://unpkg.com/lucide@latest" onerror="console.warn('Lucide icons CDN failed to load')"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" onerror="console.warn('CryptoJS CDN failed to load')"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer onerror="console.warn('jsPDF CDN failed to load')"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer onerror="console.warn('html2canvas CDN failed to load')"></script>
-    
-    <!-- Fallback loading check script -->
-    <script>
-        // Check if external libraries loaded successfully
-        window.checkLibrariesLoaded = function() {
-            const results = {
-                tailwind: typeof tailwind !== 'undefined' || document.querySelector('script[src*="tailwindcss"]') !== null,
-                lucide: typeof lucide !== 'undefined',
-                cryptojs: typeof CryptoJS !== 'undefined',
-                jspdf: typeof jsPDF !== 'undefined',
-                html2canvas: typeof html2canvas !== 'undefined'
-            };
-            console.log('Library loading status:', results);
-            return results;
-        };
-        
-        // Add a timeout to check library loading
-        setTimeout(() => {
-            const status = window.checkLibrariesLoaded();
-            const failed = Object.keys(status).filter(key => !status[key]);
-            if (failed.length > 0) {
-                console.warn('Failed to load libraries:', failed);
-            }
-        }, 2000);
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -52,36 +25,11 @@
             --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
             --gradient-secondary: linear-gradient(135deg, #10b981 0%, #34d399 100%);
             --shadow-brand: 0 10px 25px -5px rgba(37, 99, 235, 0.2), 0 4px 6px -2px rgba(37, 99, 235, 0.05);
-
-            /* Light mode colors */
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f1f5f9;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
-            --border-color: #e2e8f0;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-
-        /* Dark mode colors */
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
-            --border-color: #334155;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-        }
-
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         /* Professional Brand Elements */
@@ -93,12 +41,11 @@
         }
         
         .medical-card {
-            background: var(--bg-secondary);
+            background: white;
             border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-brand);
+            border: 1px solid rgba(37, 99, 235, 0.1);
             transition: all 0.3s ease;
-            color: var(--text-primary);
         }
         
         .medical-card:hover {
@@ -1291,7 +1238,6 @@
 
     <!-- App Container -->
     <div id="app" class="max-w-4xl mx-auto p-2 sm:p-4 md:p-6">
-        <main id="main-content" role="main">
 
         <!-- Professional Loading Spinner -->
         <div id="loading" class="fixed inset-0 bg-gradient-to-br from-blue-50 to-white bg-opacity-95 flex flex-col items-center justify-center z-50">
@@ -1310,45 +1256,8 @@
             <div class="text-center mt-4">
                 <h3 class="text-lg font-bold text-blue-800">MediRecords Pro</h3>
                 <p class="text-sm text-blue-600 animate-pulse">Loading your medical workspace...</p>
-                
-                <!-- Manual override button (appears after 10 seconds) -->
-                <div id="manualOverride" style="display: none;" class="mt-4">
-                    <button onclick="forceLoadApp()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors">
-                        Continue Anyway
-                    </button>
-                    <p class="text-xs text-gray-500 mt-2">Click if app is taking too long to load</p>
-                </div>
             </div>
         </div>
-        
-        <script>
-            // Show manual override after 8 seconds
-            setTimeout(() => {
-                const override = document.getElementById('manualOverride');
-                if (override && document.getElementById('loading').style.display !== 'none') {
-                    override.style.display = 'block';
-                }
-            }, 8000);
-            
-            // Force load function
-            window.forceLoadApp = function() {
-                console.log('Force loading app...');
-                const loadingSpinner = document.getElementById('loading');
-                if (loadingSpinner) {
-                    loadingSpinner.style.display = 'none';
-                }
-                
-                // Try to show the main view
-                const views = document.querySelectorAll('.view');
-                views.forEach(v => v.classList.remove('active'));
-                const patientListView = document.getElementById('patientListView');
-                if (patientListView) {
-                    patientListView.classList.add('active');
-                }
-                
-                console.log('App force-loaded successfully');
-            };
-        </script>
         
         <!-- Streamlined Header for Mobile -->
         <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-4 rounded-xl shadow-lg mb-4 relative overflow-hidden">
@@ -2099,32 +2008,7 @@
                     <label for="clinicInfo" class="block text-sm font-medium text-gray-700">Clinic Name & Address</label>
                     <textarea id="clinicInfo" rows="3" class="mt-1 block w-full p-3 border rounded-md"></textarea>
                 </div>
-
-                <!-- Appearance Settings -->
-                <div class="border-t pt-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-                        <i data-lucide="palette" class="w-5 h-5 mr-2 text-purple-600"></i>
-                        Appearance
-                    </h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div class="flex items-center space-x-3">
-                                <i data-lucide="fingerprint" class="w-5 h-5 text-green-600"></i>
-                                <div>
-                                    <h4 class="font-medium text-gray-800">Biometric Authentication</h4>
-                                    <p class="text-sm text-gray-600">Secure app access with fingerprint or face recognition</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span id="biometricStatus" class="text-xs text-gray-500">Checking...</span>
-                                <button type="button" id="setupBiometricBtn" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 hidden">
-                                    Set Up
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                
                 <!-- Data Management Section -->
                 <div class="border-t pt-6">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Digital Signature Setup</h3>
@@ -2209,37 +2093,7 @@
                 
                 <!-- Data Management Section -->
                 <div class="border-t pt-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-                        <i data-lucide="shield" class="w-5 h-5 mr-2 text-green-600"></i>
-                        Secure Data Management
-                    </h3>
-
-                    <!-- Encryption Settings -->
-                    <div class="bg-green-50 border border-green-200 p-4 rounded-lg mb-4">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="lock" class="w-5 h-5 mr-2 text-green-600"></i>
-                            <h4 class="font-semibold text-green-800">Data Encryption</h4>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <input type="checkbox" id="enableEncryption" class="w-4 h-4 text-green-600 rounded">
-                                <label for="enableEncryption" class="ml-2 text-sm font-medium text-green-700">
-                                    Enable AES-256 encryption for exports
-                                </label>
-                            </div>
-                            <div id="encryptionPasswordDiv" class="hidden">
-                                <label for="encryptionPassword" class="block text-sm font-medium text-green-700 mb-1">
-                                    Encryption Password
-                                </label>
-                                <input type="password" id="encryptionPassword" class="w-full p-2 border rounded-md text-sm"
-                                       placeholder="Enter a strong password (min 8 characters)">
-                                <p class="text-xs text-green-600 mt-1">
-                                    ⚠️ Remember this password - you'll need it to decrypt your data
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Data Management</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <button type="button" id="exportDataBtn" class="bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600">
                             <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
@@ -2250,45 +2104,13 @@
                             Import Data
                         </button>
                     </div>
-                    <input type="file" id="importFileInput" accept=".json,.enc" style="display: none;">
-
-                    <!-- Import Password Modal -->
-                    <div id="importPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                            <h3 class="text-lg font-bold mb-4">Enter Decryption Password</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label for="importPassword" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Password for encrypted file
-                                    </label>
-                                    <input type="password" id="importPassword" class="w-full p-3 border rounded-md"
-                                           placeholder="Enter decryption password">
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button type="button" id="confirmImportBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                        Decrypt & Import
-                                    </button>
-                                    <button type="button" id="cancelImportBtn" class="flex-1 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    <input type="file" id="importFileInput" accept=".json" style="display: none;">
                     <div class="mt-4 text-sm text-gray-600 space-y-2">
                         <p><strong>Storage Info:</strong></p>
                         <p id="storageInfo">Loading...</p>
-                        <div class="flex space-x-2 flex-wrap gap-2">
-                            <button type="button" id="backupDataBtn" class="text-blue-500 hover:text-blue-700 text-sm">
-                                <i data-lucide="cloud-upload" class="w-4 h-4 inline mr-1"></i>
-                                Create Backup
-                            </button>
-                            <button type="button" id="clearDataBtn" class="text-red-500 hover:text-red-700 text-sm">
-                                <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i>
-                                Clear All Data
-                            </button>
-                        </div>
+                        <button type="button" id="clearDataBtn" class="text-red-500 hover:text-red-700 text-sm">
+                            Clear All Data (⚠️ Cannot be undone)
+                        </button>
                     </div>
                 </div>
                 
@@ -4417,94 +4239,47 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
             
             console.log('Window loaded, starting initialization...');
             
-            // Skip library checks for GitHub Pages compatibility
-            // Proceed with normal initialization
-            initializeApp();
-        };
-        
-        async function initializeApp() {
-            const loadingSpinner = document.getElementById('loading');
-            
             // Ensure the spinner is hidden even if initialization fails
             setTimeout(() => {
-                console.log('Force hiding loading spinner after 10 seconds...');
+                console.log('Force hiding loading spinner after 5 seconds...');
+                const loadingSpinner = document.getElementById('loading');
                 if (loadingSpinner && loadingSpinner.style.display !== 'none') {
                     loadingSpinner.style.display = 'none';
                     console.log('Loading spinner hidden by timeout');
-                    // Show a warning that initialization was interrupted
-                    showNotification('App loaded with limited features. Some initialization steps were skipped.', 'warning');
                 }
-            }, 10000); // Increased timeout to 10 seconds
+            }, 5000); // Force hide after 5 seconds
             
             try {
                 console.log('Creating icons...');
                 try {
-                    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                        lucide.createIcons();
-                        console.log('Icons created successfully');
-                    } else {
-                        console.warn('Lucide icons not available, skipping icon creation');
-                    }
+                    lucide.createIcons();
                 } catch (iconError) {
                     console.error('Icon creation error:', iconError);
                 }
                 
                 console.log('Starting initialize function...');
-                await Promise.race([
-                    initialize(),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Initialize timeout')), 10000))
-                ]);
-                console.log('Core initialization completed successfully');
-
-                console.log('Starting accessibility initialization...');
-                try {
-                    await Promise.race([
-                        initializeAccessibility(),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('Accessibility timeout')), 1000))
-                    ]);
-                    console.log('Accessibility features initialized');
-                } catch (accessError) {
-                    console.error('Accessibility initialization error:', accessError);
-                }
-
-                console.log('Starting performance optimizations...');
-                try {
-                    optimizePerformance();
-                    console.log('Performance optimizations initialized');
-                } catch (perfError) {
-                    console.error('Performance optimization error:', perfError);
-                }
-
-                console.log('Adding notification settings...');
-                try {
-                    addNotificationSettings();
-                    console.log('Notification settings added');
-                } catch (notifError) {
-                    console.error('Notification settings error:', notifError);
-                }
-
-                // Hide loading spinner after successful initialization
-                if (loadingSpinner) {
-                    loadingSpinner.style.display = 'none';
-                    console.log('Loading spinner hidden after successful initialization');
-                }
-
-                console.log('All initialization steps completed successfully!');
+                await initialize();
+                console.log('Initialization completed successfully');
             } catch (error) {
-                console.error('Critical initialization error:', error);
-                // Handle initialization error - just log and hide spinner
-                console.warn('App loaded with errors, but continuing...');
+                console.error('Initialization error:', error);
+                // Handle initialization error
+                const loadingSpinner = document.getElementById('loading');
                 if (loadingSpinner) {
-                    loadingSpinner.style.display = 'none';
-                }
-                // Try to show the main view anyway
-                try {
-                    showView('patientListView');
-                } catch (viewError) {
-                    console.error('Failed to show main view:', viewError);
+                    loadingSpinner.innerHTML = `
+                        <div class="text-center">
+                            <div class="text-red-500 mb-4">
+                                <i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i>
+                                Error loading app
+                            </div>
+                            <p class="text-sm text-gray-600 mb-4">Error: ${error.message}</p>
+                            <button onclick="location.reload()" class="bg-blue-500 text-white px-4 py-2 rounded">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
                 }
             }
-        }
+        };
 
         // --- VIEW MANAGEMENT ---
         function showView(viewId, patientId = null) {
@@ -4531,8 +4306,6 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
             const saved = localStorage.getItem(STORAGE_KEYS.DOCTOR_PROFILE);
             if (saved) {
                 doctorProfile = JSON.parse(saved);
-                // Apply theme immediately when profile loads
-                applyTheme(doctorProfile.darkMode || false);
             } else {
                 doctorProfile = { ...defaultDoctorProfile };
                 saveDoctorProfile();
@@ -4541,743 +4314,6 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
         
         function saveDoctorProfile() {
             localStorage.setItem(STORAGE_KEYS.DOCTOR_PROFILE, JSON.stringify(doctorProfile));
-        }
-
-        // --- THEME MANAGEMENT ---
-        function applyTheme(isDark) {
-            const html = document.documentElement;
-            if (isDark) {
-                html.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                html.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            const isDark = savedTheme === 'dark';
-            applyTheme(isDark);
-            return isDark;
-        }
-
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const isDark = currentTheme !== 'dark';
-            applyTheme(isDark);
-            // Update doctor profile
-            doctorProfile.darkMode = isDark;
-            saveDoctorProfile();
-        }
-
-        // --- ERROR BOUNDARY & UX IMPROVEMENTS ---
-        function showErrorBoundary(error, context = 'Unknown') {
-            console.error(`Error in ${context}:`, error);
-
-            const errorModal = document.createElement('div');
-            errorModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            errorModal.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                    <div class="flex items-center mb-4">
-                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500 mr-3"></i>
-                        <h3 class="text-lg font-bold text-gray-800">Something went wrong</h3>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        An error occurred in ${context}. This has been logged for review.
-                    </p>
-                    <div class="text-sm text-gray-500 mb-4">
-                        Error: ${error.message || 'Unknown error'}
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="window.location.reload()" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Reload App
-                        </button>
-                        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                            Continue
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(errorModal);
-            lucide.createIcons();
-        }
-
-        // Global error handler
-        window.addEventListener('error', function(e) {
-            showErrorBoundary(e.error, 'Application');
-        });
-
-        window.addEventListener('unhandledrejection', function(e) {
-            showErrorBoundary(new Error(e.reason), 'Promise');
-        });
-
-        // Enhanced loading states
-        function showLoadingSpinner(message = 'Loading...') {
-            const existing = document.getElementById('globalLoadingSpinner');
-            if (existing) existing.remove();
-
-            const spinner = document.createElement('div');
-            spinner.id = 'globalLoadingSpinner';
-            spinner.className = 'fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50';
-            spinner.innerHTML = `
-                <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <span class="text-gray-700">${message}</span>
-                </div>
-            `;
-            document.body.appendChild(spinner);
-        }
-
-        function hideLoadingSpinner() {
-            const spinner = document.getElementById('globalLoadingSpinner');
-            if (spinner) {
-                spinner.remove();
-            }
-        }
-
-        // Enhanced notification system
-        function showNotification(message, type = 'info', duration = 5000) {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 max-w-sm ${
-                type === 'success' ? 'bg-green-500 text-white' :
-                type === 'error' ? 'bg-red-500 text-white' :
-                type === 'warning' ? 'bg-yellow-500 text-black' :
-                'bg-blue-500 text-white'
-            }`;
-            notification.setAttribute('role', 'alert');
-            notification.setAttribute('aria-live', 'assertive');
-            notification.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <i data-lucide="${
-                        type === 'success' ? 'check-circle' :
-                        type === 'error' ? 'x-circle' :
-                        type === 'warning' ? 'alert-triangle' :
-                        'info'
-                    }" class="w-5 h-5 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
-                    <div class="flex-1">
-                        <p class="font-medium">${message}</p>
-                    </div>
-                    <button onclick="this.closest('div').remove()" class="text-current hover:opacity-75 ml-2" aria-label="Close notification">
-                        <i data-lucide="x" class="w-4 h-4" aria-hidden="true"></i>
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            lucide.createIcons();
-
-            // Auto-hide after duration
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, duration);
-        }
-
-        // --- ACCESSIBILITY IMPROVEMENTS ---
-        async function initializeAccessibility() {
-            try {
-                // Initialize biometric authentication
-                const biometricAvailable = await initializeBiometricAuth();
-                const biometricStatus = document.getElementById('biometricStatus');
-                const setupBiometricBtn = document.getElementById('setupBiometricBtn');
-
-                if (biometricStatus) {
-                    if (biometricAvailable) {
-                        if (localStorage.getItem('biometric_enabled') === 'true') {
-                            biometricStatus.textContent = 'Enabled';
-                            biometricStatus.className = 'text-xs text-green-600';
-                        } else {
-                            biometricStatus.textContent = 'Available';
-                            biometricStatus.className = 'text-xs text-blue-600';
-                            if (setupBiometricBtn) setupBiometricBtn.classList.remove('hidden');
-                        }
-                    } else {
-                        biometricStatus.textContent = 'Not Available';
-                        biometricStatus.className = 'text-xs text-gray-500';
-                    }
-                }
-
-                if (setupBiometricBtn) {
-                    setupBiometricBtn.onclick = registerBiometric;
-                }
-
-                // Start inactivity timer if biometric is enabled
-                if (localStorage.getItem('biometric_enabled') === 'true') {
-                    resetInactivityTimer();
-                }
-
-                // Add skip links for keyboard navigation
-                const skipLink = document.createElement('a');
-                skipLink.href = '#main-content';
-                skipLink.className = 'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded z-50';
-                skipLink.textContent = 'Skip to main content';
-                document.body.insertBefore(skipLink, document.body.firstChild);
-
-                // Add ARIA labels to main navigation
-                const navButtons = document.querySelectorAll('.nav-btn');
-                navButtons.forEach(btn => {
-                    const icon = btn.querySelector('i');
-                    if (icon) {
-                        const label = icon.getAttribute('data-lucide');
-                        btn.setAttribute('aria-label', label.replace('-', ' '));
-                    }
-                });
-
-                // Improve form accessibility
-                const forms = document.querySelectorAll('form');
-                forms.forEach(form => {
-                    const inputs = form.querySelectorAll('input, select, textarea');
-                    inputs.forEach(input => {
-                        if (!input.getAttribute('aria-describedby') && !input.getAttribute('aria-label')) {
-                            const label = form.querySelector(`label[for="${input.id}"]`);
-                            if (label) {
-                                input.setAttribute('aria-label', label.textContent.trim());
-                            }
-                        }
-                    });
-                });
-
-                // Add keyboard shortcuts
-                document.addEventListener('keydown', function(e) {
-                    // Ctrl/Cmd + / for help
-                    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
-                        e.preventDefault();
-                        showKeyboardShortcuts();
-                    }
-
-                    // Ctrl/Cmd + N for new patient
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                        e.preventDefault();
-                        showView('patientFormView');
-                    }
-
-                    // Ctrl/Cmd + F for search
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-                        e.preventDefault();
-                        const searchInput = document.getElementById('patientSearch');
-                        if (searchInput) searchInput.focus();
-                    }
-
-                    // Escape to close modals
-                    if (e.key === 'Escape') {
-                        const modals = document.querySelectorAll('.fixed.inset-0');
-                        modals.forEach(modal => {
-                            const closeBtn = modal.querySelector('[onclick*="remove"]');
-                            if (closeBtn) closeBtn.click();
-                        });
-                    }
-                });
-
-            } catch (error) {
-                console.error('Error initializing accessibility features:', error);
-            }
-        }
-
-        function showKeyboardShortcuts() {
-            const shortcutsModal = document.createElement('div');
-            shortcutsModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            shortcutsModal.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold">Keyboard Shortcuts</h3>
-                        <button onclick="this.closest('.fixed').remove()" aria-label="Close shortcuts">
-                            <i data-lucide="x" class="w-6 h-6"></i>
-                        </button>
-                    </div>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span>Help</span>
-                            <kbd class="bg-gray-100 px-2 py-1 rounded text-xs">Ctrl + /</kbd>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Close modals</span>
-                            <kbd class="bg-gray-100 px-2 py-1 rounded text-xs">Esc</kbd>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>New patient</span>
-                            <kbd class="bg-gray-100 px-2 py-1 rounded text-xs">Ctrl + N</kbd>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Search patients</span>
-                            <kbd class="bg-gray-100 px-2 py-1 rounded text-xs">Ctrl + F</kbd>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(shortcutsModal);
-            lucide.createIcons();
-        }
-
-        // --- BIOMETRIC AUTHENTICATION ---
-        let biometricEnabled = false;
-
-        async function initializeBiometricAuth() {
-            if (!window.PublicKeyCredential) {
-                console.log('WebAuthn not supported');
-                return false;
-            }
-
-            try {
-                // Check if biometric authentication is available with timeout
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Biometric check timeout')), 3000);
-                });
-
-                const checkPromise = PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-
-                const available = await Promise.race([checkPromise, timeoutPromise]);
-
-                if (available) {
-                    biometricEnabled = true;
-                    console.log('Biometric authentication available');
-                    return true;
-                }
-            } catch (error) {
-                console.log('Biometric authentication not available:', error.message);
-            }
-            return false;
-        }
-
-        async function registerBiometric() {
-            if (!biometricEnabled) {
-                showNotification('Biometric authentication not available on this device', 'warning');
-                return;
-            }
-
-            try {
-                showLoadingSpinner('Setting up biometric authentication...');
-
-                // Create credential creation options
-                const challenge = new Uint8Array(32);
-                window.crypto.getRandomValues(challenge);
-
-                const createCredentialOptions = {
-                    challenge: challenge,
-                    rp: {
-                        name: "Doctor Chanda",
-                        id: window.location.hostname
-                    },
-                    user: {
-                        id: new Uint8Array(16),
-                        name: doctorProfile.doctorName || 'Doctor',
-                        displayName: doctorProfile.doctorName || 'Doctor'
-                    },
-                    pubKeyCredParams: [
-                        { alg: -7, type: "public-key" }, // ES256
-                        { alg: -257, type: "public-key" } // RS256
-                    ],
-                    authenticatorSelection: {
-                        authenticatorAttachment: "platform",
-                        userVerification: "required",
-                        requireResidentKey: false
-                    },
-                    timeout: 60000,
-                    attestation: "direct"
-                };
-
-                window.crypto.getRandomValues(createCredentialOptions.user.id);
-
-                const credential = await navigator.credentials.create({
-                    publicKey: createCredentialOptions
-                });
-
-                // Store the credential ID
-                localStorage.setItem('biometric_credential_id', btoa(String.fromCharCode(...new Uint8Array(credential.rawId))));
-                localStorage.setItem('biometric_enabled', 'true');
-
-                hideLoadingSpinner();
-                showNotification('Biometric authentication set up successfully!', 'success');
-
-            } catch (error) {
-                hideLoadingSpinner();
-                console.error('Biometric registration failed:', error);
-                showNotification('Failed to set up biometric authentication', 'error');
-            }
-        }
-
-        async function authenticateBiometric() {
-            if (!biometricEnabled || localStorage.getItem('biometric_enabled') !== 'true') {
-                return false;
-            }
-
-            try {
-                const credentialId = localStorage.getItem('biometric_credential_id');
-                if (!credentialId) return false;
-
-                const challenge = new Uint8Array(32);
-                window.crypto.getRandomValues(challenge);
-
-                const getCredentialOptions = {
-                    challenge: challenge,
-                    allowCredentials: [{
-                        id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)),
-                        type: "public-key",
-                        transports: ["internal"]
-                    }],
-                    timeout: 60000,
-                    userVerification: "required"
-                };
-
-                const assertion = await navigator.credentials.get({
-                    publicKey: getCredentialOptions
-                });
-
-                return true; // Authentication successful
-
-            } catch (error) {
-                console.log('Biometric authentication failed:', error);
-                return false;
-            }
-        }
-
-        // Auto-lock after inactivity
-        let inactivityTimer;
-        const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-
-        function resetInactivityTimer() {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(() => {
-                if (localStorage.getItem('biometric_enabled') === 'true') {
-                    showBiometricAuthModal();
-                }
-            }, INACTIVITY_TIMEOUT);
-        }
-
-        function showBiometricAuthModal() {
-            const authModal = document.createElement('div');
-            authModal.id = 'biometricAuthModal';
-            authModal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
-            authModal.innerHTML = `
-                <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4 text-center">
-                    <i data-lucide="fingerprint" class="w-16 h-16 text-blue-500 mx-auto mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Authenticate</h3>
-                    <p class="text-gray-600 mb-6">Use your fingerprint or face to unlock</p>
-                    <div class="flex space-x-2">
-                        <button id="biometricAuthBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Authenticate
-                        </button>
-                        <button onclick="window.location.reload()" class="flex-1 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                            Reload App
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(authModal);
-            lucide.createIcons();
-
-            document.getElementById('biometricAuthBtn').onclick = async () => {
-                const authenticated = await authenticateBiometric();
-                if (authenticated) {
-                    authModal.remove();
-                    resetInactivityTimer();
-                    showNotification('Authenticated successfully', 'success');
-                } else {
-                    showNotification('Authentication failed', 'error');
-                }
-            };
-        }
-
-        // Track user activity
-        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, resetInactivityTimer, true);
-        });
-
-        // --- PUSH NOTIFICATIONS ---
-        async function requestNotificationPermission() {
-            if (!('Notification' in window)) {
-                console.log('Notifications not supported');
-                return false;
-            }
-
-            if (Notification.permission === 'granted') {
-                return true;
-            }
-
-            if (Notification.permission !== 'denied') {
-                const permission = await Notification.requestPermission();
-                return permission === 'granted';
-            }
-
-            return false;
-        }
-
-        async function scheduleAppointmentReminder(appointment) {
-            if (!('serviceWorker' in navigator) || !('Notification' in window)) {
-                return;
-            }
-
-            const hasPermission = await requestNotificationPermission();
-            if (!hasPermission) return;
-
-            // Schedule notification for 1 hour before appointment
-            const appointmentTime = new Date(appointment.date + ' ' + appointment.time);
-            const reminderTime = new Date(appointmentTime.getTime() - (60 * 60 * 1000)); // 1 hour before
-
-            if (reminderTime > new Date()) {
-                setTimeout(() => {
-                    new Notification('Appointment Reminder', {
-                        body: `You have an appointment with ${appointment.patientName} in 1 hour`,
-                        icon: '/favicon.ico',
-                        badge: '/favicon.ico',
-                        tag: `appointment-${appointment.id}`,
-                        requireInteraction: true,
-                        actions: [
-                            {
-                                action: 'view',
-                                title: 'View Details'
-                            },
-                            {
-                                action: 'dismiss',
-                                title: 'Dismiss'
-                            }
-                        ]
-                    });
-                }, reminderTime.getTime() - Date.now());
-            }
-        }
-
-        async function sendMedicationReminder(medication, patientName) {
-            if (!('Notification' in window) || Notification.permission !== 'granted') {
-                return;
-            }
-
-            new Notification('Medication Reminder', {
-                body: `Time to take ${medication.name} for ${patientName}`,
-                icon: '/favicon.ico',
-                badge: '/favicon.ico',
-                tag: 'medication-reminder',
-                requireInteraction: false,
-                silent: false
-            });
-        }
-
-        // Add notification settings to settings
-        function addNotificationSettings() {
-            try {
-                const appearanceSection = document.querySelector('.border-t.pt-6');
-                if (!appearanceSection) {
-                    console.log('Notification settings section not found, skipping...');
-                    return;
-                }
-
-                const notificationSetting = document.createElement('div');
-                notificationSetting.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg mt-4';
-                notificationSetting.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <i data-lucide="bell" class="w-5 h-5 text-orange-600"></i>
-                        <div>
-                            <h4 class="font-medium text-gray-800">Push Notifications</h4>
-                            <p class="text-sm text-gray-600">Receive reminders for appointments and medications</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span id="notificationStatus" class="text-xs text-gray-500">Checking...</span>
-                        <button type="button" id="enableNotificationsBtn" class="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 hidden">
-                            Enable
-                        </button>
-                    </div>
-                `;
-
-                appearanceSection.appendChild(notificationSetting);
-
-                // Update notification status
-                updateNotificationStatus();
-
-                // Add event listener
-                const enableBtn = document.getElementById('enableNotificationsBtn');
-                if (enableBtn) {
-                    enableBtn.onclick = async () => {
-                        const granted = await requestNotificationPermission();
-                        updateNotificationStatus();
-                        if (granted) {
-                            showNotification('Notifications enabled successfully!', 'success');
-                        }
-                    };
-                }
-
-                lucide.createIcons();
-            } catch (error) {
-                console.error('Error adding notification settings:', error);
-            }
-        }
-
-        function updateNotificationStatus() {
-            const status = document.getElementById('notificationStatus');
-            const enableBtn = document.getElementById('enableNotificationsBtn');
-
-            if (!('Notification' in window)) {
-                status.textContent = 'Not Supported';
-                status.className = 'text-xs text-gray-500';
-                return;
-            }
-
-            switch (Notification.permission) {
-                case 'granted':
-                    status.textContent = 'Enabled';
-                    status.className = 'text-xs text-green-600';
-                    enableBtn.classList.add('hidden');
-                    break;
-                case 'denied':
-                    status.textContent = 'Blocked';
-                    status.className = 'text-xs text-red-600';
-                    enableBtn.classList.add('hidden');
-                    break;
-                default:
-                    status.textContent = 'Disabled';
-                    status.className = 'text-xs text-gray-500';
-                    enableBtn.classList.remove('hidden');
-            }
-        }
-        function optimizePerformance() {
-            // Lazy load images
-            const images = document.querySelectorAll('img[data-src]');
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        observer.unobserve(img);
-                    }
-                });
-            });
-
-            images.forEach(img => imageObserver.observe(img));
-
-            // Debounce search input
-            const searchInput = document.getElementById('patientSearch');
-            if (searchInput) {
-                let searchTimeout;
-                const originalOninput = searchInput.oninput;
-                searchInput.oninput = function(e) {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => {
-                        if (originalOninput) originalOninput.call(this, e);
-                    }, 300);
-                };
-            }
-
-            // Optimize list rendering with virtual scrolling for large patient lists
-            optimizePatientListRendering();
-
-            // Preload critical resources
-            preloadCriticalResources();
-
-            // Memory management
-            setupMemoryManagement();
-        }
-
-        function optimizePatientListRendering() {
-            const patientList = document.getElementById('patientList');
-            if (!patientList || patients.length < 50) return; // Only optimize for large lists
-
-            // Implement virtual scrolling for better performance
-            let visibleStart = 0;
-            const itemHeight = 80; // Approximate height of each patient item
-            const containerHeight = 400; // Height of visible area
-            const visibleCount = Math.ceil(containerHeight / itemHeight) + 2; // +2 for buffer
-
-            function renderVisiblePatients() {
-                const visibleEnd = Math.min(visibleStart + visibleCount, patients.length);
-                const visiblePatients = patients.slice(visibleStart, visibleEnd);
-
-                // Calculate offset for smooth scrolling
-                const offset = visibleStart * itemHeight;
-
-                patientList.innerHTML = `
-                    <div style="height: ${patients.length * itemHeight}px; position: relative;">
-                        <div style="transform: translateY(${offset}px);" id="visiblePatients">
-                            ${visiblePatients.map((patient, index) => `
-                                <div class="patient-item medical-card p-4 mb-2 cursor-pointer hover:shadow-lg transition-shadow"
-                                     onclick="selectPatient(${visibleStart + index})"
-                                     style="height: ${itemHeight}px;">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <h3 class="font-semibold text-lg">${patient.name}</h3>
-                                            <p class="text-gray-600">Age: ${patient.age || 'N/A'} | Gender: ${patient.gender || 'N/A'}</p>
-                                            <p class="text-sm text-gray-500">ID: ${patient.id}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-sm text-gray-500">${patient.phone || ''}</div>
-                                            <div class="text-xs text-gray-400">${patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString() : 'No visits'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Throttle scroll events
-            let scrollTimeout;
-            patientList.addEventListener('scroll', () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    const scrollTop = patientList.scrollTop;
-                    visibleStart = Math.floor(scrollTop / itemHeight);
-                    renderVisiblePatients();
-                }, 16); // ~60fps
-            });
-
-            renderVisiblePatients();
-        }
-
-        function preloadCriticalResources() {
-            // Preload critical fonts
-            const fontLink = document.createElement('link');
-            fontLink.rel = 'preload';
-            fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
-            fontLink.as = 'style';
-            document.head.appendChild(fontLink);
-
-            // Preload critical scripts
-            const criticalScripts = [
-                'https://cdn.tailwindcss.com',
-                'https://unpkg.com/lucide@latest'
-            ];
-
-            criticalScripts.forEach(url => {
-                const link = document.createElement('link');
-                link.rel = 'preload';
-                link.href = url;
-                link.as = 'script';
-                document.head.appendChild(link);
-            });
-        }
-
-        function setupMemoryManagement() {
-            // Clear cached API responses periodically
-            setInterval(() => {
-                const now = Date.now();
-                const keysToDelete = [];
-
-                apiCache.forEach((value, key) => {
-                    if (now - value.timestamp > CACHE_EXPIRY) {
-                        keysToDelete.push(key);
-                    }
-                });
-
-                keysToDelete.forEach(key => apiCache.delete(key));
-
-                // Clear DOM cache periodically
-                if (Object.keys(domCache).length > 50) {
-                    domCache = {};
-                }
-            }, 300000); // Every 5 minutes
-
-            // Monitor memory usage if available
-            if ('memory' in performance) {
-                setInterval(() => {
-                    const memInfo = performance.memory;
-                    if (memInfo.usedJSHeapSize > memInfo.totalJSHeapSize * 0.8) {
-                        console.warn('High memory usage detected, clearing caches');
-                        apiCache.clear();
-                        domCache = {};
-                    }
-                }, 60000); // Every minute
-            }
         }
         
         function loadPatients() {
@@ -6808,12 +5844,6 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                         
                         // Update UI based on provider
                         updateAIStatus();
-
-                        // Load dark mode setting
-                        const darkModeToggle = document.getElementById('darkModeToggle');
-                        if (darkModeToggle) {
-                            darkModeToggle.checked = doctorProfile.darkMode || false;
-                        }
                         
                         // Show API test results section if it exists
                         const apiTestResults = document.getElementById('apiTestResults');
@@ -6910,17 +5940,6 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                 const settingsForm = document.getElementById('settingsForm');
                 if (settingsForm) {
                     settingsForm.onsubmit = saveSettings;
-                }
-
-                // Dark mode toggle
-                const darkModeToggle = document.getElementById('darkModeToggle');
-                if (darkModeToggle) {
-                    darkModeToggle.addEventListener('change', function() {
-                        applyTheme(this.checked);
-                        // Update doctor profile immediately
-                        doctorProfile.darkMode = this.checked;
-                        saveDoctorProfile();
-                    });
                 }
                 
                 // API Test Buttons
@@ -7597,56 +6616,17 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
         function setupDataManagement() {
             // Export Data
             document.getElementById('exportDataBtn').onclick = exportData;
-
+            
             // Import Data
             document.getElementById('importDataBtn').onclick = () => {
                 document.getElementById('importFileInput').click();
             };
-
+            
             document.getElementById('importFileInput').onchange = importData;
-
+            
             // Clear All Data
             document.getElementById('clearDataBtn').onclick = clearAllData;
-
-            // Encryption controls
-            const enableEncryption = document.getElementById('enableEncryption');
-            const encryptionPasswordDiv = document.getElementById('encryptionPasswordDiv');
-
-            enableEncryption.onchange = function() {
-                if (this.checked) {
-                    encryptionPasswordDiv.classList.remove('hidden');
-                } else {
-                    encryptionPasswordDiv.classList.add('hidden');
-                    document.getElementById('encryptionPassword').value = '';
-                }
-            };
-
-            // Backup Data (create encrypted backup)
-            document.getElementById('backupDataBtn').onclick = () => {
-                const originalEncryption = enableEncryption.checked;
-                enableEncryption.checked = true;
-                encryptionPasswordDiv.classList.remove('hidden');
-
-                // Auto-generate a backup password if not set
-                const passwordField = document.getElementById('encryptionPassword');
-                if (!passwordField.value) {
-                    const backupPassword = 'backup_' + Date.now().toString().slice(-6);
-                    passwordField.value = backupPassword;
-                    alert(`Backup password generated: ${backupPassword}\n\n⚠️ Please save this password securely!`);
-                }
-
-                // Trigger export after a short delay to allow UI update
-                setTimeout(() => {
-                    exportData();
-                    // Restore original encryption setting
-                    enableEncryption.checked = originalEncryption;
-                    if (!originalEncryption) {
-                        encryptionPasswordDiv.classList.add('hidden');
-                        passwordField.value = '';
-                    }
-                }, 100);
-            };
-
+            
             // Update storage info
             updateStorageInfo();
         }
@@ -9139,56 +8119,31 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
                 const exportData = {
                     doctorProfile: doctorProfile,
                     patients: patients,
-                    consultations: {},
-                    exportDate: new Date().toISOString(),
-                    appVersion: '1.0.0'
+                    consultations: {}
                 };
-
+                
                 // Collect all consultations for each patient
                 patients.forEach(patient => {
                     exportData.consultations[patient.id] = loadConsultations(patient.id);
                 });
-
-                const enableEncryption = document.getElementById('enableEncryption').checked;
-                let dataStr;
-                let filename;
-                let mimeType;
-
-                if (enableEncryption) {
-                    const password = document.getElementById('encryptionPassword').value;
-                    if (!password || password.length < 8) {
-                        alert('Please enter a password with at least 8 characters for encryption.');
-                        return;
-                    }
-
-                    // Encrypt the data
-                    const encrypted = CryptoJS.AES.encrypt(JSON.stringify(exportData), password).toString();
-                    dataStr = JSON.stringify({
-                        encrypted: true,
-                        data: encrypted,
-                        timestamp: new Date().toISOString()
-                    }, null, 2);
-                    filename = `clinic-data-encrypted-${new Date().toISOString().split('T')[0]}.enc`;
-                    mimeType = 'application/octet-stream';
-                } else {
-                    dataStr = JSON.stringify(exportData, null, 2);
-                    filename = `clinic-data-${new Date().toISOString().split('T')[0]}.json`;
-                    mimeType = 'application/json';
-                }
-
+                
+                exportData.exportDate = new Date().toISOString();
+                exportData.appVersion = '1.0.0';
+                
                 // Create download
-                const dataBlob = new Blob([dataStr], { type: mimeType });
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(dataBlob);
-
+                
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = filename;
+                link.download = `clinic-data-${new Date().toISOString().split('T')[0]}.json`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
-
-                alert(`Data exported successfully${enableEncryption ? ' with encryption' : ''}!`);
+                
+                alert('Data exported successfully!');
             } catch (error) {
                 console.error('Export error:', error);
                 alert('Error exporting data. Please try again.');
@@ -9198,126 +8153,60 @@ IMPORTANT: Return ONLY the JSON array with Indian lab investigations, accurate p
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-
+            
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
-                    let importedData;
-                    const fileContent = e.target.result;
-
-                    // Check if file is encrypted
-                    const parsedContent = JSON.parse(fileContent);
-                    if (parsedContent.encrypted && parsedContent.data) {
-                        // Show password modal
-                        document.getElementById('importPasswordModal').classList.remove('hidden');
-                        document.getElementById('importPassword').value = '';
-
-                        // Store the encrypted data for later decryption
-                        window.pendingImportData = parsedContent.data;
-
-                        // Handle password confirmation
-                        const confirmBtn = document.getElementById('confirmImportBtn');
-                        const cancelBtn = document.getElementById('cancelImportBtn');
-
-                        const handleConfirm = async () => {
-                            const password = document.getElementById('importPassword').value;
-                            if (!password) {
-                                alert('Please enter the decryption password.');
-                                return;
-                            }
-
-                            try {
-                                // Decrypt the data
-                                const decrypted = CryptoJS.AES.decrypt(window.pendingImportData, password);
-                                const decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
-
-                                if (!decryptedStr) {
-                                    throw new Error('Invalid password or corrupted file');
-                                }
-
-                                importedData = JSON.parse(decryptedStr);
-                                document.getElementById('importPasswordModal').classList.add('hidden');
-
-                                // Clean up event listeners
-                                confirmBtn.removeEventListener('click', handleConfirm);
-                                cancelBtn.removeEventListener('click', handleCancel);
-
-                                // Proceed with import
-                                await processImportData(importedData);
-
-                            } catch (error) {
-                                console.error('Decryption error:', error);
-                                alert('Invalid password or corrupted file. Please try again.');
-                            }
-                        };
-
-                        const handleCancel = () => {
-                            document.getElementById('importPasswordModal').classList.add('hidden');
-                            confirmBtn.removeEventListener('click', handleConfirm);
-                            cancelBtn.removeEventListener('click', handleCancel);
-                            delete window.pendingImportData;
-                        };
-
-                        confirmBtn.addEventListener('click', handleConfirm);
-                        cancelBtn.addEventListener('click', handleCancel);
-
-                        return; // Exit early, import will continue after password entry
-                    } else {
-                        importedData = parsedContent;
-                        await processImportData(importedData);
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!importedData.doctorProfile || !importedData.patients) {
+                        throw new Error('Invalid data format');
                     }
-
+                    
+                    // Confirm import
+                    const confirmed = await showCustomConfirm(
+                        'Import Data',
+                        'This will replace all existing data. Are you sure?',
+                        'Import',
+                        'Cancel',
+                        'upload'
+                    );
+                    if (!confirmed) return;
+                    
+                    // Import doctor profile
+                    if (importedData.doctorProfile) {
+                        doctorProfile = importedData.doctorProfile;
+                        saveDoctorProfile();
+                    }
+                    
+                    // Import patients
+                    if (importedData.patients) {
+                        patients = importedData.patients;
+                        savePatients();
+                    }
+                    
+                    // Import consultations
+                    if (importedData.consultations) {
+                        Object.keys(importedData.consultations).forEach(patientId => {
+                            saveConsultations(patientId, importedData.consultations[patientId]);
+                        });
+                    }
+                    
+                    // Refresh UI
+                    renderPatientList();
+                    updateStorageInfo();
+                    
+                    alert('Data imported successfully!');
                 } catch (error) {
                     console.error('Import error:', error);
                     alert('Error importing data. Please check the file format.');
                 }
             };
             reader.readAsText(file);
-
+            
             // Reset file input
             event.target.value = '';
-        }
-
-        async function processImportData(importedData) {
-            // Validate data structure
-            if (!importedData.doctorProfile || !importedData.patients) {
-                throw new Error('Invalid data format');
-            }
-
-            // Confirm import
-            const confirmed = await showCustomConfirm(
-                'Import Data',
-                'This will replace all existing data. Are you sure?',
-                'Import',
-                'Cancel',
-                'upload'
-            );
-            if (!confirmed) return;
-
-            // Import doctor profile
-            if (importedData.doctorProfile) {
-                doctorProfile = importedData.doctorProfile;
-                saveDoctorProfile();
-            }
-
-            // Import patients
-            if (importedData.patients) {
-                patients = importedData.patients;
-                savePatients();
-            }
-
-            // Import consultations
-            if (importedData.consultations) {
-                Object.keys(importedData.consultations).forEach(patientId => {
-                    saveConsultations(patientId, importedData.consultations[patientId]);
-                });
-            }
-
-            // Refresh UI
-            renderPatientList();
-            updateStorageInfo();
-
-            alert('Data imported successfully!');
         }
         
         async function clearAllData() {
@@ -12082,14 +10971,13 @@ Generate 6-8 specific, actionable advice points. Return as JSON array only:
                 email: document.getElementById('email').value,
                 regNumber: document.getElementById('regNumber').value,
                 clinicInfo: document.getElementById('clinicInfo').value,
-                darkMode: document.getElementById('darkModeToggle').checked
             };
-
+            
             // Save API keys
             const geminiKey = document.getElementById('geminiApiKey').value.trim();
             const geminiModel = document.getElementById('geminiModel').value;
             const aiEnabled = document.getElementById('aiEnabled').checked;
-
+            
             if (geminiKey) {
                 localStorage.setItem('gemini_api_key', geminiKey);
                 AI_CONFIG.gemini.apiKey = geminiKey;
@@ -12100,11 +10988,10 @@ Generate 6-8 specific, actionable advice points. Return as JSON array only:
             }
             AI_CONFIG.enabled = aiEnabled;
             localStorage.setItem('ai_enabled', aiEnabled.toString());
-
+            
             try {
                 doctorProfile = profile;
                 saveDoctorProfile();
-                applyTheme(profile.darkMode);
                 updateAIStatus();
                 alert("Profile and AI settings saved successfully!");
                 showView('patientListView');
@@ -14351,106 +13238,7 @@ For any queries, please contact our clinic.`;
         window.downloadCertificatePDF = downloadCertificatePDF;
         window.printCertificatePDFForSharing = printCertificatePDFForSharing;
 
-        // --- SERVICE WORKER REGISTRATION ---
-        if ('serviceWorker' in navigator) {
-            // Register service worker asynchronously without blocking app initialization
-            setTimeout(() => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registered successfully:', registration.scope);
-
-                        // Check for updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            if (newWorker) {
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        // New version available
-                                        showUpdateNotification();
-                                    }
-                                });
-                            }
-                        });
-
-                        // Handle controller change (new SW activated)
-                        navigator.serviceWorker.addEventListener('controllerchange', () => {
-                            console.log('Service Worker updated, reloading page...');
-                            window.location.reload();
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                        // Continue without service worker - don't block app
-                    });
-            }, 100); // Small delay to ensure main initialization completes first
-        }
-
-        // Show update notification
-        function showUpdateNotification() {
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 max-w-sm';
-            notification.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <i data-lucide="refresh-cw" class="w-5 h-5 mt-0.5 flex-shrink-0"></i>
-                    <div class="flex-1">
-                        <h4 class="font-semibold">Update Available</h4>
-                        <p class="text-sm text-blue-100 mt-1">A new version is available. Refresh to update.</p>
-                        <div class="mt-3 flex space-x-2">
-                            <button onclick="window.location.reload()" class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium hover:bg-blue-50">
-                                Refresh
-                            </button>
-                            <button onclick="this.closest('div').remove()" class="text-blue-200 hover:text-white px-3 py-1 rounded text-sm">
-                                Later
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            lucide.createIcons();
-        }
-
-        // --- OFFLINE DETECTION ---
-        let isOnline = navigator.onLine;
-        window.addEventListener('online', () => {
-            isOnline = true;
-            showNotification('Back online! Data will sync automatically.', 'success');
-        });
-
-        window.addEventListener('offline', () => {
-            isOnline = false;
-            showNotification('You are offline. Some features may be limited.', 'warning');
-        });
-
-        // Add offline indicator to UI
-        function updateOnlineStatus() {
-            const indicator = document.createElement('div');
-            indicator.id = 'onlineIndicator';
-            indicator.className = `fixed bottom-4 right-4 px-3 py-2 rounded-full text-sm font-medium z-40 ${
-                isOnline ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'
-            }`;
-            indicator.innerHTML = `
-                <i data-lucide="${isOnline ? 'wifi' : 'wifi-off'}" class="w-4 h-4 inline mr-1"></i>
-                ${isOnline ? 'Online' : 'Offline'}
-            `;
-
-            const existing = document.getElementById('onlineIndicator');
-            if (existing) existing.remove();
-            document.body.appendChild(indicator);
-            lucide.createIcons();
-
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                indicator.remove();
-            }, 5000);
-        }
-
-        // Show initial status
-        setTimeout(updateOnlineStatus, 1000);
-
     </script>
-
-    </main>
 
     <!-- Simplified Mobile Footer -->
     <footer class="bg-gray-800 text-white mt-8 py-4 text-center text-sm no-print">
